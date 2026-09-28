@@ -1,0 +1,12 @@
+{
+  "name": "recording booking management system",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "vercel deploy --prod"
+  },
+  "dependencies": {
+    "@vercel/postgres": "^0.10.0"
+  }
+}

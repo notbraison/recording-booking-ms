@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Rundown — Studio Booking</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+  :root {
+    --bg: #EDF0ED; --paper: #FFFFFF; --ink: #16201C; --ink-soft: #57635C; --ink-faint: #8B958E;
+    --line: #D3D9D1; --line-soft: #E5E9E3;
+    --amber: #A6721E; --amber-bg: #FBF1DE; --amber-line: #E4C285;
+    --green: #2F6B49; --green-bg: #E5F1E9; --green-line: #A9CDB8;
+    --brick: #93453A; --brick-bg: #F5E8E4;
+    --slate: #35577A; --slate-bg: #E5ECF3; --slate-line: #A9C1D6;
+    --font-display: 'Archivo', 'Arial Narrow', sans-serif;
+    --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+    --shadow: 0 1px 2px rgba(20,26,22,0.06), 0 1px 0 rgba(20,26,22,0.04);
+    box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12161A; --paper: #1A2024; --ink: #ECEFEC; --ink-soft: #A7B0AA; --ink-faint: #6D7772;
+      --line: #2A3237; --line-soft: #212A2E;
+      --amber: #D9A64C; --amber-bg: #2E2818; --amber-line: #5C4A26;
+      --green: #6FBF8F; --green-bg: #182821; --green-line: #2F5240;
+      --brick: #E0897B; --brick-bg: #2A1E1C;
+      --slate: #8DB4DB; --slate-bg: #182530; --slate-line: #2E4A63;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12161A; --paper: #1A2024; --ink: #ECEFEC; --ink-soft: #A7B0AA; --ink-faint: #6D7772;
+    --line: #2A3237; --line-soft: #212A2E;
+    --amber: #D9A64C; --amber-bg: #2E2818; --amber-line: #5C4A26;
+    --green: #6FBF8F; --green-bg: #182821; --green-line: #2F5240;
+    --brick: #E0897B; --brick-bg: #2A1E1C;
+    --slate: #8DB4DB; --slate-bg: #182530; --slate-line: #2E4A63;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); -webkit-font-smoothing: antialiased; min-height: 100%; }
+  .app { max-width: 900px; margin: 0 auto; padding: 28px 20px 80px; }
+  .masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+  .wordmark { font-family: var(--font-display); font-weight: 800; font-size: 26px; letter-spacing: -0.01em; }
+  .wordmark span { color: var(--ink-faint); font-weight: 600; font-size: 14px; font-family: var(--font-mono); margin-left: 10px; letter-spacing: 0; }
+  .switch { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--paper); box-shadow: var(--shadow); }
+  .switch button { border: none; background: transparent; padding: 8px 18px; border-radius: 999px; font-family: var(--font-display); font-weight: 700; font-size: 13px; letter-spacing: 0.01em; cursor: pointer; color: var(--ink-soft); transition: background .15s ease, color .15s ease; }
+  .switch button.active { background: var(--ink); color: var(--paper); }
+  .switch .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 7px; background: var(--brick); position: relative; top: -1px; }
+  .switch button.active .dot { background: #E0574A; box-shadow: 0 0 6px #E0574A; }
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 18px 20px; margin-bottom: 18px; }
+  .panel h2 { font-family: var(--font-display); font-size: 15px; font-weight: 700; margin: 0 0 4px; }
+  .panel .sub { color: var(--ink-soft); font-size: 13px; margin: 0 0 14px; line-height: 1.5; }
+  label.field { display: block; font-size: 12px; color: var(--ink-soft); margin-bottom: 5px; font-weight: 500; }
+  input, select, textarea { font-family: var(--font-body); font-size: 14px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 100%; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--slate); outline-offset: 1px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 130px; }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 4px; }
+  .preset-btn { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 6px 13px; font-size: 12px; font-family: var(--font-mono); cursor: pointer; }
+  .preset-btn:hover { border-color: var(--slate); color: var(--slate); }
+  .btn { font-family: var(--font-display); font-weight: 700; font-size: 13px; border-radius: 7px; padding: 8px 16px; cursor: pointer; border: 1px solid transparent; }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--ink-soft); border-color: var(--line); }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--ink-soft); }
+  .btn-approve { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-line); }
+  .btn-decline { background: var(--brick-bg); color: var(--brick); border: 1px solid var(--brick); }
+  .btn-reschedule { background: var(--slate-bg); color: var(--slate); border: 1px solid var(--slate-line); }
+  .btn-sm { font-size: 12px; padding: 6px 12px; }
+  .day-group { margin-bottom: 22px; }
+  .day-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  .day-head .num { font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+  .day-head .name { font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+  .window-card { border: 1px solid var(--line-soft); border-radius: 8px; padding: 12px 14px 16px; margin-bottom: 10px; background: var(--paper); }
+  .window-head { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); margin-bottom: 10px; }
+  .timeline { position: relative; height: 46px; border-radius: 5px; background: repeating-linear-gradient(90deg, var(--line-soft) 0, var(--line-soft) 1px, transparent 1px, transparent 100%); background-color: var(--bg); overflow: hidden; border: 1px solid var(--line-soft); }
+  .seg { position: absolute; top: 0; bottom: 0; }
+  .seg-free { cursor: pointer; }
+  .seg-free:hover { background: rgba(53,87,122,0.08); }
+  .seg-free.blocked { cursor: default; }
+  .seg-buffer { background: repeating-linear-gradient(45deg, var(--line-soft), var(--line-soft) 4px, transparent 4px, transparent 8px); border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+  .seg-booking { display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-weight: 600; font-family: var(--font-mono); overflow: hidden; white-space: nowrap; border-radius: 3px; }
+  .seg-booking.pending { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-line); }
+  .seg-booking.approved { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-line); }
+  .seg-booking.rescheduled { background: var(--slate-bg); color: var(--slate); border: 1px solid var(--slate-line); }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--ink-soft); margin: 4px 0 18px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .badge { display: inline-block; font-family: var(--font-mono); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .badge.pending { background: var(--amber-bg); color: var(--amber); }
+  .badge.approved { background: var(--green-bg); color: var(--green); }
+  .badge.declined { background: var(--brick-bg); color: var(--brick); }
+  .badge.rescheduled { background: var(--slate-bg); color: var(--slate); }
+  .req-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line-soft); }
+  .req-item:last-child { border-bottom: none; }
+  .req-item .meta { font-size: 13px; }
+  .req-item .meta .course { font-weight: 600; }
+  .req-item .meta .when { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .req-item .note { font-size: 12px; color: var(--ink-faint); margin-top: 4px; font-style: italic; }
+  .req-item .script { font-size: 12px; margin-top: 4px; }
+  .req-item .script a { color: var(--slate); }
+  .queue-card { border: 1px solid var(--line-soft); border-radius: 8px; padding: 13px 15px; margin-bottom: 10px; }
+  .queue-card .top { display: flex; justify-content: space-between; gap: 10px; }
+  .queue-card .course { font-weight: 600; font-size: 14px; }
+  .queue-card .lecturer { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+  .queue-card .when { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
+  .queue-card .equip { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+  .queue-card .actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+  .queue-card .reason { flex: 1; min-width: 140px; }
+  .reschedule-panel { margin-top: 10px; padding: 10px; background: var(--slate-bg); border: 1px solid var(--slate-line); border-radius: 6px; }
+  .reschedule-panel p { margin: 0 0 8px; font-size: 12px; color: var(--slate); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(20,26,22,0.45); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+  @media (min-width: 640px) { .modal-overlay { align-items: center; } }
+  .modal { background: var(--paper); width: 100%; max-width: 480px; border-radius: 14px 14px 0 0; padding: 22px 22px calc(22px + env(safe-area-inset-bottom, 0px)); max-height: 88vh; overflow-y: auto; }
+  @media (min-width: 640px) { .modal { border-radius: 12px; } }
+  .modal h3 { font-family: var(--font-display); font-size: 17px; margin: 0 0 2px; }
+  .modal .sub { color: var(--ink-soft); font-size: 13px; margin: 0 0 16px; font-family: var(--font-mono); }
+  .checks { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 12px; cursor: pointer; user-select: none; background: var(--bg); }
+  .chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .field-gap { margin-bottom: 14px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+  .empty-note { font-size: 12px; color: var(--brick); background: var(--brick-bg); border-radius: 6px; padding: 8px 10px; margin-top: 8px; }
+  .toast { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--paper); font-size: 13px; padding: 10px 18px; border-radius: 999px; box-shadow: 0 4px 14px rgba(0,0,0,0.2); z-index: 60; }
+  .empty-state { text-align: center; color: var(--ink-faint); font-size: 13px; padding: 20px 0; }
+  .load-state { text-align: center; color: var(--ink-faint); font-size: 13px; padding: 60px 0; }
+  .fatal { max-width: 520px; margin: 60px auto; background: var(--brick-bg); border: 1px solid var(--brick); border-radius: 10px; padding: 18px 20px; font-size: 13px; color: var(--brick); }
+  .fatal code { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; }
+  ::-webkit-scrollbar { width: 8px; }
+  a { color: inherit; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="env,react">
+const { useState, useMemo, useEffect, useCallback } = React;
+
+/* ---------- scheduling constants & helpers (mirrors lib/scheduling.js) ---------- */
+const BASE_BUFFER = 10;
+const EQUIPMENT = [
+  { name: 'Camera only', extraSetup: 0 },
+  { name: 'Lightboard', extraSetup: 15 },
+  { name: 'Teleprompter', extraSetup: 15 },
+  { name: 'Green screen', extraSetup: 10 },
+];
+const EQUIPMENT_MAP = Object.fromEntries(EQUIPMENT.map(e => [e.name, e]));
+const DURATIONS = [60, 90, 120];
+const STANDARD_DURATION = 120;
+const WINDOW_PRESETS = [
+  { label: '9:00–11:00', start: '09:00', end: '11:00' },
+  { label: '11:00–13:00', start: '11:00', end: '13:00' },
+  { label: '14:00–16:00', start: '14:00', end: '16:00' },
+  { label: '14:30–16:30', start: '14:30', end: '16:30' },
+];
+const CLICKABLE_MIN = 35;
+const ACTIVE_STATUSES = ['pending', 'approved', 'rescheduled'];
+
+const timeToMin = t => { const [h,m] = t.split(':').map(Number); return h*60+m; };
+const minToTime = m => `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+const monthDay = d => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+const weekday = d => d.toLocaleDateString(undefined, { weekday: 'short' });
+
+const setupBufferFor = equipmentNames => {
+  const extras = (equipmentNames || []).map(n => (EQUIPMENT_MAP[n] ? EQUIPMENT_MAP[n].extraSetup : 0));
+  return BASE_BUFFER + (extras.length ? Math.max(...extras) : 0);
+};
+const occupiedInterval = booking => {
+  const coreStart = timeToMin(booking.status === 'rescheduled' && booking.proposedTime ? booking.proposedTime : booking.requestedStart);
+  const coreEnd = coreStart + booking.durationMinutes;
+  const setup = setupBufferFor(booking.equipment);
+  return { blockStart: coreStart - setup, blockEnd: coreEnd + BASE_BUFFER, coreStart, coreEnd };
+};
+function buildSegments(win, bookings, excludeId) {
+  const wStart = timeToMin(win.start), wEnd = timeToMin(win.end);
+  const active = (bookings || [])
+    .filter(b => b.windowId === win.id && ACTIVE_STATUSES.includes(b.status) && b.id !== excludeId)
+    .map(b => ({ ...occupiedInterval(b), booking: b }))
+    .sort((a,b) => a.blockStart - b.blockStart);
+  const segments = [];
+  let cursor = wStart;
+  for (const iv of active) {
+    const setupStart = Math.max(iv.blockStart, wStart);
+    const setupEnd = Math.min(iv.coreStart, wEnd);
+    const coreStart = Math.max(iv.coreStart, wStart);
+    const coreEnd = Math.min(iv.coreEnd, wEnd);
+    const teardownStart = Math.max(iv.coreEnd, wStart);
+    const teardownEnd = Math.min(iv.blockEnd, wEnd);
+    if (setupStart > cursor) segments.push({ type: 'free', start: cursor, end: setupStart });
+    if (setupEnd > setupStart) segments.push({ type: 'buffer', start: setupStart, end: setupEnd, booking: iv.booking });
+    if (coreEnd > coreStart) segments.push({ type: 'booking', start: coreStart, end: coreEnd, booking: iv.booking });
+    if (teardownEnd > teardownStart) segments.push({ type: 'buffer', start: teardownStart, end: teardownEnd, booking: iv.booking });
+    cursor = Math.max(cursor, teardownEnd, coreEnd);
+  }
+  if (cursor < wEnd) segments.push({ type: 'free', start: cursor, end: wEnd });
+  return segments;
+}
+function validStartsInSegment(segment, durationMinutes, equipment) {
+  const setup = setupBufferFor(equipment);
+  const starts = [];
+  for (let s = segment.start; s + durationMinutes <= segment.end; s += 15) {
+    if (s - setup >= segment.start && s + durationMinutes + BASE_BUFFER <= segment.end) starts.push(s);
+  }
+  return starts;
+}
+function possibleStartsInWindow(win, bookings, excludeId, durationMinutes, equipment) {
+  const free = buildSegments(win, bookings, excludeId).filter(s => s.type === 'free');
+  let starts = [];
+  free.forEach(seg => { starts = starts.concat(validStartsInSegment(seg, durationMinutes, equipment)); });
+  return starts;
+}
+function groupByDate(list) {
+  const map = {};
+  list.forEach(w => { (map[w.date] = map[w.date] || []).push(w); });
+  return Object.entries(map).sort((a,b) => a[0].localeCompare(b[0]));
+}
+
+/* ---------- API helpers ---------- */
+async function apiGet(path) {
+  const res = await fetch(path);
+  if (!res.ok) throw new Error('Failed to load ' + path);
+  return res.json();
+}
+async function apiSend(path, method, body) {
+  const res = await fetch(path, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+/* ---------- shared bits ---------- */
+function Legend() {
+  return (
+    <div className="legend">
+      <span><span className="swatch" style={{background:'var(--bg)', border:'1px solid var(--line)'}}></span>Open</span>
+      <span><span className="swatch" style={{background:'repeating-linear-gradient(45deg, var(--line-soft), var(--line-soft) 3px, transparent 3px, transparent 6px)', border:'1px solid var(--line)'}}></span>Setup / teardown buffer</span>
+      <span><span className="swatch" style={{background:'var(--amber-bg)', border:'1px solid var(--amber-line)'}}></span>Pending</span>
+      <span><span className="swatch" style={{background:'var(--green-bg)', border:'1px solid var(--green-line)'}}></span>Approved</span>
+      <span><span className="swatch" style={{background:'var(--slate-bg)', border:'1px solid var(--slate-line)'}}></span>Rescheduled</span>
+    </div>
+  );
+}
+
+function Timeline({ win, bookings, onFreeClick, interactive }) {
+  const wStart = timeToMin(win.start), wEnd = timeToMin(win.end);
+  const total = wEnd - wStart;
+  const segments = useMemo(() => buildSegments(win, bookings), [win, bookings]);
+  return (
+    <div className="timeline">
+      {segments.map((seg, i) => {
+        const left = ((seg.start - wStart) / total) * 100;
+        const width = ((seg.end - seg.start) / total) * 100;
+        const style = { left: left + '%', width: width + '%' };
+        if (seg.type === 'free') {
+          const clickable = interactive && (seg.end - seg.start) >= CLICKABLE_MIN;
+          return (
+            <div key={i} className={'seg seg-free' + (clickable ? '' : ' blocked')} style={style}
+                 title={clickable ? `Open ${minToTime(seg.start)}–${minToTime(seg.end)} — tap to request` : undefined}
+                 onClick={() => clickable && onFreeClick && onFreeClick(seg)} />
+          );
+        }
+        if (seg.type === 'buffer') {
+          return <div key={i} className="seg seg-buffer" style={style} title={`Buffer for ${seg.booking.courseOrTopic}`} />;
+        }
+        return (
+          <div key={i} className={'seg seg-booking ' + seg.booking.status} style={style}
+               title={`${seg.booking.courseOrTopic} — ${seg.booking.lecturerName}`}>
+            {width > 8 ? seg.booking.courseOrTopic : ''}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ---------- booking modal ---------- */
+function BookingModal({ segment, win, lecturerName, onClose, onSubmit }) {
+  const [duration, setDuration] = useState(STANDARD_DURATION);
+  const [equipment, setEquipment] = useState([]);
+  const [course, setCourse] = useState('');
+  const [note, setNote] = useState('');
+  const [scriptUrl, setScriptUrl] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const starts = useMemo(() => validStartsInSegment(segment, duration, equipment), [segment, duration, equipment]);
+  const [startMin, setStartMin] = useState(starts[0] ?? segment.start);
+  const effectiveStart = starts.includes(startMin) ? startMin : (starts[0] ?? null);
+
+  const toggleEquip = name => setEquipment(eq => eq.includes(name) ? eq.filter(e => e !== name) : [...eq, name]);
+
+  const handleSubmit = async () => {
+    setSubmitting(true); setError('');
+    try {
+      await onSubmit({
+        courseOrTopic: course.trim(), durationMinutes: duration,
+        equipment, requestedStart: minToTime(effectiveStart), note, scriptUrl,
+      });
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <h3>Request a recording slot</h3>
+        <p className="sub">{monthDay(new Date(win.date))} · window {win.start}–{win.end}</p>
+
+        <div className="field-gap">
+          <label className="field">Course or topic</label>
+          <input value={course} onChange={e => setCourse(e.target.value)} placeholder="e.g. STAT 150: Regression Basics" />
+        </div>
+
+        <div className="row field-gap">
+          <div>
+            <label className="field">Duration (standard is 2 hrs)</label>
+            <select value={duration} onChange={e => setDuration(Number(e.target.value))}>
+              {DURATIONS.map(d => <option key={d} value={d}>{d === 60 ? '1 hr' : d/60 + ' hrs'}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="field">Start time</label>
+            <select value={effectiveStart ?? ''} onChange={e => setStartMin(Number(e.target.value))} disabled={!starts.length}>
+              {starts.length ? starts.map(s => <option key={s} value={s}>{minToTime(s)}</option>) : <option>—</option>}
+            </select>
+          </div>
+        </div>
+
+        <div className="field-gap">
+          <label className="field">Equipment needed</label>
+          <div className="checks">
+            {EQUIPMENT.map(eq => (
+              <div key={eq.name} className={'chip' + (equipment.includes(eq.name) ? ' on' : '')} onClick={() => toggleEquip(eq.name)}>
+                {eq.name}{eq.extraSetup ? ` (+${eq.extraSetup}m setup)` : ''}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="field-gap">
+          <label className="field">Link to script (optional — replaces emailing it separately)</label>
+          <input value={scriptUrl} onChange={e => setScriptUrl(e.target.value)} placeholder="https://docs.google.com/…" />
+        </div>
+
+        <div className="field-gap">
+          <label className="field">Note for media staff (optional)</label>
+          <textarea rows="2" value={note} onChange={e => setNote(e.target.value)} placeholder="Anything they should know" />
+        </div>
+
+        {!starts.length && (
+          <div className="empty-note">That equipment needs more setup room than is free here. Try a shorter duration or different equipment.</div>
+        )}
+        {error && <div className="empty-note">{error}</div>}
+
+        <div className="modal-actions">
+          <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary" disabled={submitting || !course.trim() || effectiveStart === null} onClick={handleSubmit}>
+            {submitting ? 'Sending…' : 'Send request'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- lecturer view ---------- */
+function LecturerView({ windows, bookings, submitBooking }) {
+  const [name, setName] = useState('Dr. Amara Osei');
+  const [modalCtx, setModalCtx] = useState(null);
+  const [toast, setToast] = useState('');
+
+  const myRequests = bookings.filter(b => b.lecturerName === name)
+    .sort((a,b) => a.windowId.localeCompare(b.windowId));
+  const winById = Object.fromEntries(windows.map(w => [w.id, w]));
+
+  const submit = async payload => {
+    await submitBooking({ ...payload, windowId: modalCtx.win.id, lecturerName: name });
+    setModalCtx(null);
+    setToast('Request sent — track its status below.');
+    setTimeout(() => setToast(''), 3000);
+  };
+
+  return (
+    <div>
+      <div className="panel">
+        <h2>Book a recording session</h2>
+        <p className="sub">Tap an open slot below. Standard sessions are 2 hours; setup and teardown time is reserved automatically based on the equipment you need.</p>
+        <label className="field">Your name</label>
+        <input value={name} onChange={e => setName(e.target.value)} style={{maxWidth: 280}} />
+      </div>
+
+      <Legend />
+
+      {windows.length === 0 && <div className="empty-state">No windows open yet — check back once media staff have published some.</div>}
+      {groupByDate(windows).map(([date, wins]) => (
+        <div className="day-group" key={date}>
+          <div className="day-head"><span className="num">{monthDay(new Date(date))}</span><span className="name">{weekday(new Date(date))}</span></div>
+          {wins.map(win => (
+            <div className="window-card" key={win.id}>
+              <div className="window-head"><span>{win.start} – {win.end}</span><span>studio window</span></div>
+              <Timeline win={win} bookings={bookings} interactive onFreeClick={seg => setModalCtx({ win, segment: seg })} />
+            </div>
+          ))}
+        </div>
+      ))}
+
+      <div className="panel">
+        <h2>Your requests</h2>
+        {myRequests.length === 0 && <div className="empty-state">No requests yet — book a slot above.</div>}
+        {myRequests.map(b => {
+          const win = winById[b.windowId];
+          const shownTime = b.status === 'rescheduled' && b.proposedTime ? b.proposedTime : b.requestedStart;
+          return (
+            <div className="req-item" key={b.id}>
+              <div className="meta">
+                <div className="course">{b.courseOrTopic}</div>
+                <div className="when">{win ? monthDay(new Date(win.date)) : ''} · {shownTime} · {b.durationMinutes} min{b.equipment.length ? ' · ' + b.equipment.join(', ') : ''}</div>
+                {b.status === 'rescheduled' && <div className="note">Media staff proposed a new time: {b.proposedTime}</div>}
+                {b.status === 'declined' && b.note && <div className="note">{b.note}</div>}
+                {b.scriptUrl && <div className="script"><a href={b.scriptUrl} target="_blank" rel="noreferrer">Script</a></div>}
+              </div>
+              <span className={'badge ' + b.status}>{b.status}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {modalCtx && <BookingModal segment={modalCtx.segment} win={modalCtx.win} lecturerName={name} onClose={() => setModalCtx(null)} onSubmit={submit} />}
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+/* ---------- staff view ---------- */
+function DefineWindowForm({ onAdd }) {
+  const [date, setDate] = useState(new Date().toISOString().slice(0,10));
+  const [start, setStart] = useState('09:00');
+  const [end, setEnd] = useState('11:00');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const valid = start < end;
+
+  const save = async () => {
+    setSaving(true); setError('');
+    try {
+      await onAdd({ date, start, end });
+    } catch (e) { setError(e.message); } finally { setSaving(false); }
+  };
+
+  return (
+    <div className="panel">
+      <h2>Define a recording window</h2>
+      <p className="sub">Open a block of studio time for lecturers to request against. Pick one of the usual blocks, or set a custom range.</p>
+      <div className="presets">
+        {WINDOW_PRESETS.map(p => (
+          <button key={p.label} className="preset-btn" onClick={() => { setStart(p.start); setEnd(p.end); }}>{p.label}</button>
+        ))}
+      </div>
+      <div className="row">
+        <div><label className="field">Date</label><input type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
+        <div><label className="field">Start</label><input type="time" value={start} onChange={e => setStart(e.target.value)} /></div>
+        <div><label className="field">End</label><input type="time" value={end} onChange={e => setEnd(e.target.value)} /></div>
+      </div>
+      <div style={{marginTop: 12}}>
+        <button className="btn btn-primary" disabled={!valid || saving} onClick={save}>{saving ? 'Adding…' : 'Add window'}</button>
+        {!valid && <span style={{fontSize:12, color:'var(--brick)', marginLeft:10}}>End must be after start</span>}
+        {error && <div className="empty-note" style={{marginTop:8}}>{error}</div>}
+      </div>
+    </div>
+  );
+}
+
+function ReschedulePanel({ booking, win, bookings, onConfirm, onCancel }) {
+  const starts = useMemo(() => possibleStartsInWindow(win, bookings, booking.id, booking.durationMinutes, booking.equipment), [win, bookings, booking]);
+  const [choice, setChoice] = useState(starts[0] ?? null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const confirm = async () => {
+    setSaving(true); setError('');
+    try { await onConfirm(minToTime(choice)); } catch (e) { setError(e.message); } finally { setSaving(false); }
+  };
+
+  return (
+    <div className="reschedule-panel">
+      {starts.length === 0 ? (
+        <p>No open slot in this window fits this session — consider declining so the lecturer can submit a new request.</p>
+      ) : (
+        <>
+          <p>Propose a new start time in the same window:</p>
+          <select value={choice ?? ''} onChange={e => setChoice(Number(e.target.value))}>
+            {starts.map(s => <option key={s} value={s}>{minToTime(s)}</option>)}
+          </select>
+        </>
+      )}
+      {error && <div className="empty-note">{error}</div>}
+      <div className="modal-actions" style={{marginTop:10, justifyContent:'flex-start'}}>
+        {starts.length > 0 && <button className="btn btn-reschedule btn-sm" disabled={saving} onClick={confirm}>{saving ? 'Saving…' : 'Confirm new time'}</button>}
+        <button className="btn btn-ghost btn-sm" onClick={onCancel}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+function StaffView({ windows, bookings, addWindow, patchBooking }) {
+  const [reschedulingId, setReschedulingId] = useState(null);
+  const [reasons, setReasons] = useState({});
+  const [busyId, setBusyId] = useState(null);
+  const winById = Object.fromEntries(windows.map(w => [w.id, w]));
+
+  const pending = bookings.filter(b => b.status === 'pending')
+    .sort((a,b) => ((winById[a.windowId]?.date||'') + a.requestedStart).localeCompare((winById[b.windowId]?.date||'') + b.requestedStart));
+  const decided = bookings.filter(b => b.status !== 'pending')
+    .sort((a,b) => (winById[b.windowId]?.date||'').localeCompare(winById[a.windowId]?.date||''));
+
+  const act = async (id, action, extra) => {
+    setBusyId(id);
+    try { await patchBooking(id, { action, ...extra }); } finally { setBusyId(null); }
+  };
+
+  return (
+    <div>
+      <DefineWindowForm onAdd={addWindow} />
+
+      <div className="panel">
+        <h2>Pending requests</h2>
+        <p className="sub">Nothing is confirmed until you approve it — even if a slot looks free.</p>
+        {pending.length === 0 && <div className="empty-state">No pending requests right now.</div>}
+        {pending.map(b => {
+          const win = winById[b.windowId];
+          if (!win) return null;
+          return (
+            <div className="queue-card" key={b.id}>
+              <div className="top">
+                <div><div className="course">{b.courseOrTopic}</div><div className="lecturer">{b.lecturerName}</div></div>
+                <div className="when">{monthDay(new Date(win.date))}<br/>{b.requestedStart} · {b.durationMinutes}m</div>
+              </div>
+              {b.equipment.length > 0 && <div className="equip">Needs: {b.equipment.join(', ')}</div>}
+              {b.scriptUrl && <div className="req-item" style={{border:'none', padding:'4px 0 0'}}><div className="script"><a href={b.scriptUrl} target="_blank" rel="noreferrer">Script</a></div></div>}
+              {b.note && <div className="req-item" style={{border:'none', padding:'4px 0 0'}}><div className="note" style={{color:'var(--ink-soft)'}}>&ldquo;{b.note}&rdquo;</div></div>}
+
+              {reschedulingId === b.id ? (
+                <ReschedulePanel booking={b} win={win} bookings={bookings}
+                  onCancel={() => setReschedulingId(null)}
+                  onConfirm={async newStart => { await act(b.id, 'reschedule', { proposedTime: newStart }); setReschedulingId(null); }} />
+              ) : (
+                <div className="actions">
+                  <button className="btn btn-approve btn-sm" disabled={busyId===b.id} onClick={() => act(b.id, 'approve')}>Approve</button>
+                  <button className="btn btn-reschedule btn-sm" disabled={busyId===b.id} onClick={() => setReschedulingId(b.id)}>Reschedule</button>
+                  <input className="reason" placeholder="Decline reason (optional)" value={reasons[b.id] || ''} onChange={e => setReasons(r => ({...r, [b.id]: e.target.value}))} />
+                  <button className="btn btn-decline btn-sm" disabled={busyId===b.id} onClick={() => act(b.id, 'decline', { note: reasons[b.id] || '' })}>Decline</button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <Legend />
+
+      {groupByDate(windows).map(([date, wins]) => (
+        <div className="day-group" key={date}>
+          <div className="day-head"><span className="num">{monthDay(new Date(date))}</span><span className="name">{weekday(new Date(date))}</span></div>
+          {wins.map(win => (
+            <div className="window-card" key={win.id}>
+              <div className="window-head"><span>{win.start} – {win.end}</span><span>studio window</span></div>
+              <Timeline win={win} bookings={bookings} interactive={false} />
+            </div>
+          ))}
+        </div>
+      ))}
+
+      <div className="panel">
+        <h2>Recent decisions</h2>
+        {decided.length === 0 && <div className="empty-state">Nothing decided yet.</div>}
+        {decided.map(b => {
+          const win = winById[b.windowId];
+          if (!win) return null;
+          return (
+            <div className="req-item" key={b.id}>
+              <div className="meta">
+                <div className="course">{b.courseOrTopic}</div>
+                <div className="when">{b.lecturerName} · {monthDay(new Date(win.date))} · {b.status === 'rescheduled' ? `now ${b.proposedTime}` : b.requestedStart}</div>
+                {b.note && <div className="note">{b.note}</div>}
+              </div>
+              <span className={'badge ' + b.status}>{b.status}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- app ---------- */
+function App() {
+  const [view, setView] = useState('lecturer');
+  const [windows, setWindows] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [status, setStatus] = useState('loading'); // loading | ready | error
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const loadAll = useCallback(async () => {
+    try {
+      const [w, b] = await Promise.all([apiGet('/api/windows'), apiGet('/api/bookings')]);
+      setWindows(w); setBookings(b); setStatus('ready');
+    } catch (e) {
+      setErrorMsg(e.message); setStatus('error');
+    }
+  }, []);
+
+  useEffect(() => { loadAll(); }, [loadAll]);
+
+  const addWindow = async payload => { await apiSend('/api/windows', 'POST', payload); await loadAll(); };
+  const submitBooking = async payload => { await apiSend('/api/bookings', 'POST', payload); await loadAll(); };
+  const patchBooking = async (id, body) => { await apiSend('/api/bookings/' + id, 'PATCH', body); await loadAll(); };
+
+  return (
+    <div className="app">
+      <div className="masthead">
+        <div className="wordmark">Rundown<span>studio booking</span></div>
+        <div className="switch">
+          <button className={view === 'lecturer' ? 'active' : ''} onClick={() => setView('lecturer')}><span className="dot"></span>Lecturer</button>
+          <button className={view === 'staff' ? 'active' : ''} onClick={() => setView('staff')}><span className="dot"></span>Studio</button>
+        </div>
+      </div>
+      {status === 'loading' && <div className="load-state">Loading the schedule…</div>}
+      {status === 'error' && (
+        <div className="fatal">
+          Couldn't reach the API — is the database connected? Check <code>.env.development.local</code> has <code>POSTGRES_URL</code> set and that <code>db/schema.sql</code> has been run, then reload.
+          <div style={{marginTop:8, fontFamily:'var(--font-mono)', fontSize:11}}>{errorMsg}</div>
+        </div>
+      )}
+      {status === 'ready' && (
+        view === 'lecturer'
+          ? <LecturerView windows={windows} bookings={bookings} submitBooking={submitBooking} />
+          : <StaffView windows={windows} bookings={bookings} addWindow={addWindow} patchBooking={patchBooking} />
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
